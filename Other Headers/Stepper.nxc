@@ -1,0 +1,80 @@
+#include "Stepper.h"
+
+Stepper::Stepper(byte I2Cport,int I2CAddr8574,int orange_bit, int yellow_bit, int pink_bit, int blue_bit, int steps_per_rev)
+{
+  this -> I2Cport = I2Cport;
+  this -> I2CAddr8574 = I2CAddr8574;
+  this -> orange_bit = orange_bit;
+  this -> yellow_bit = yellow_bit;
+  this -> pink_bit = pink_bit;
+  this -> blue_bit = blue_bit;
+  this -> steps_per_rev = steps_per_rev;
+  
+  SetSensorLowspeed(I2Cport);
+  
+  this -> WriteBuf[1] = 0x00;
+  this -> WriteBuf[0] = I2CAddr8574;
+  I2CBytes(this->I2Cport,this->WriteBuf,this->RdCnt,this->ReadBuf);
+}
+
+
+void Stepper::setSpeed(int rpm)
+{
+  this -> delay_btw_steps = 60 * 1000 / this -> steps_per_rev / rpm;
+  //this estimates how many ms one step should take based on rpm
+}
+
+void Stepper::chooseStep(int stepNum)
+{
+  switch(stepNum)
+  {
+    case 0:
+      this -> WriteBuf[1] = pow(2,orange_bit)+pow(2,yellow_bit);
+      I2CBytes(this->I2Cport,this->WriteBuf,this->RdCnt,this->ReadBuf);
+      break;
+    case 1:
+      this -> WriteBuf[1] = pow(2,yellow_bit)+pow(2,pink_bit);
+      I2CBytes(this->I2Cport,this->WriteBuf,this->RdCnt,this->ReadBuf);
+      break;
+    case 2:
+      this -> WriteBuf[1] = pow(2,pink_bit)+pow(2,blue_bit);
+      I2CBytes(this->I2Cport,this->WriteBuf,this->RdCnt,this->ReadBuf);
+      break;
+    case 3:
+      this -> WriteBuf[1] = pow(2,blue_bit)+pow(2,orange_bit);
+      I2CBytes(this->I2Cport,this->WriteBuf,this->RdCnt,this->ReadBuf);
+      break;
+    }
+}
+
+
+void Stepper::moveSteps(int stepsToMove)
+{
+  int steps_left = abs(stepsToMove);
+  long prevTick;
+  
+  if (stepsToMove > 0)
+  {  //CCW
+    prevTick = CurrentTick();
+    while (steps_left > 0)
+    {
+      chooseStep(abs(steps_left % 4 - 3));
+      steps_left--;
+      while(CurrentTick()-prevTick < delay_btw_steps);
+      prevTick = CurrentTick();
+    }
+  } //end if
+  
+  
+  if (stepsToMove < 0)
+  { //CW
+    prevTick = CurrentTick();
+    while(steps_left > 0)
+    {
+      chooseStep(steps_left % 4);
+      steps_left--;
+      while(CurrentTick()-prevTick < delay_btw_steps);
+      prevTick = CurrentTick();
+    }
+  } //end if
+} //end void function

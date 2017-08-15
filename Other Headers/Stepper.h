@@ -1,3 +1,39 @@
+#ifndef Stepper_h
+#define Stepper_h
+  class Stepper
+  {
+    public:
+      Stepper(byte I2Cport,int I2CAddr8574,int orange_bit, int yellow_bit, int pink_bit, int blue_bit, int steps_per_rev);
+      
+      void setSpeed(int rpm);
+      
+      void moveSteps(int stepsToMove);
+    
+    private:
+      void chooseStep(int stepNum);
+      byte I2Cport;
+      int I2CAddr8574;
+      int orange_bit;
+      int yellow_bit;
+      int pink_bit;
+      int blue_bit;
+      
+      unsigned long delay_btw_steps;
+      int steps_per_rev;
+      
+      byte WriteBuf[2];
+      byte ReadBuf[];
+      int RdCnt = 1;
+    };
+
+
+#endif
+
+
+
+
+
+/*
 void StepperIRF510(byte I2Cport,int I2CAddr8574,int orange_bit, int yellow_bit,
                                  int pink_bit, int blue_bit,int steps_to_move,unsigned long WAIT_MS)
 {
@@ -133,3 +169,4 @@ void StepperULN2003A(byte I2Cport,int I2CAddr8574,int orange_bit, int yellow_bit
     } //end for loop 
   } //end if
 }
+*/
