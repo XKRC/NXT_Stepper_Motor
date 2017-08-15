@@ -1,25 +1,41 @@
 #include "StepperBoth.h"
   task main()
   {
-    IRF510Stepper t;
-    StepperInit510(t,S1,0x70,3,2,1,0,256);
+    Stepper t;
+    StepperInit(t,S1,0x70,6,7,1,0,256);
     
-    TextOut(0, LCD_LINE1, NumToStr(t.RdCnt));
-    Wait(1000);
+    //TextOut(0, LCD_LINE1, NumToStr(t.WriteBuf0));
+    //Wait(1000);
     
+
+/*
     for (int i = 0; i < 100; i++)
     {
-      t.WriteBuf[1] = pow(2,t.orange_bit)+pow(2,t.yellow_bit);
+      t.WriteBuf1 = pow(2,t.orange_bit)+pow(2,t.yellow_bit);
+      //TextOut(0,LCD_LINE2,NumToStr(t.WriteBuf1));
+      //Wait(1000);
+      //ClearLine(LCD_LINE2);
+      
+      t.WriteBuf[1] = t.WriteBuf1;
       I2CBytes(t.I2Cport,t.WriteBuf,t.RdCnt,t.ReadBuf);
-      t.WriteBuf[1] = pow(2,t.yellow_bit)+pow(2,t.pink_bit);
+      
+      t.WriteBuf1 = pow(2,t.yellow_bit)+pow(2,t.pink_bit);
+      t.WriteBuf[1] = t.WriteBuf1;
       I2CBytes(t.I2Cport,t.WriteBuf,t.RdCnt,t.ReadBuf);
-      t.WriteBuf[1] = pow(2,t.pink_bit)+pow(2,t.blue_bit);
+      
+      t.WriteBuf1 = pow(2,t.pink_bit)+pow(2,t.blue_bit);
+      t.WriteBuf[1] = t.WriteBuf1;
       I2CBytes(t.I2Cport,t.WriteBuf,t.RdCnt,t.ReadBuf);
-      t.WriteBuf[1] = pow(2,t.blue_bit)+pow(2,t.orange_bit);
+      
+      t.WriteBuf1 = pow(2,t.blue_bit)+pow(2,t.orange_bit);
+      t.WriteBuf[1] = t.WriteBuf1;
       I2CBytes(t.I2Cport,t.WriteBuf,t.RdCnt,t.ReadBuf);
     }
-    //SetSpeed(test1,10);
-    //MoveSteps(test1,200);
+   */
+    
+    SetSpeed(t,15);
+    StepperRunIRF510(t,300);
+    
     TextOut(0, LCD_LINE5, "Finished!");
     Wait(5000);
   }
