@@ -2,11 +2,18 @@
 
   task main()
   {
-    Stepper t;
-    StepperInit(t,S1,0x70,6,7,1,0,2048);
+    Stepper t;  //define a struct for the stepper motor we are using
     
-    SetSpeed(t,15);
-    StepperRunIRF510(t,-1024);
+    
+    //StepperInit(t,S1,0x70,6,7,1,0,2048);  //For IRF510
+    StepperInit(t,S1,0x70,3,2,1,0,2048);  //For ULN2003A
+    
+    
+    SetSpeed(t,15);  //set the speed for the stepper motor in rpm
+    
+    
+    //StepperRunIRF510(t,-1024);
+    StepperRunULN2003A(t,-1024);
     
     TextOut(0, LCD_LINE5, "Finished!");
     Wait(5000);
