@@ -1,0 +1,14 @@
+#include "StepperBoth.h"
+
+  task main()
+  {
+    Stepper t;
+    StepperInit(t,S1,0x70,6,7,1,0,2048);
+    
+    SetSpeed(t,15);
+    StepperRunIRF510(t,-1024);
+    
+    TextOut(0, LCD_LINE5, "Finished!");
+    Wait(5000);
+  }
+  

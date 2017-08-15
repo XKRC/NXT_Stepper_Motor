@@ -12,11 +12,6 @@
       
       unsigned long delay_btw_steps;
       int steps_per_rev;
-      
-      //byte WriteBuf0, WriteBuf1;
-      //byte WriteBuf[2];
-      //byte ReadBuf[]; 
-      //int RdCnt;
   };
   
   
@@ -36,14 +31,14 @@
     t.pink_bit = pink_bit;
     t.blue_bit = blue_bit;
     t.steps_per_rev = steps_per_rev;
-    //t.RdCnt = 1;
   }
-
-void StepperRunIRF510(Stepper &t, int steps_to_move)
+  
+  
+void StepperRunIRF510(Stepper &t, int stepsToMove)
 {
   long prevTick;
-  
-  int steps_left = abs(steps_to_move);  // how many steps to take
+  int steps_left = abs(stepsToMove);
+  //int steps_left = abs(steps_to_move);  // how many steps to take
   
   int step_P1 = pow(2,t.orange_bit)+pow(2,t.yellow_bit);
   int step_P2 = pow(2,t.yellow_bit)+pow(2,t.pink_bit);
@@ -62,96 +57,72 @@ void StepperRunIRF510(Stepper &t, int steps_to_move)
   WriteBuf[0] = t.I2CAddr8574; // i.e. address is 0x70
   I2CBytes(t.I2Cport, WriteBuf, RdCnt, ReadBuf);
   
-  
-  if (steps_to_move > 0) {   //CCW
-    for (int i=0; i < steps_left; i++) { 
-     
+  if (stepsToMove > 0)    //CCW
+   {  
     prevTick = CurrentTick();
-    WriteBuf[1] = step_P1; 
-    I2CBytes(t.I2Cport, WriteBuf, RdCnt, ReadBuf);
-    while(CurrentTick()-prevTick < t.delay_btw_steps);
-    
-    prevTick = CurrentTick();
-    WriteBuf[1] = step_P2;
-    I2CBytes(t.I2Cport, WriteBuf, RdCnt, ReadBuf);
-    while(CurrentTick()-prevTick < t.delay_btw_steps);
-    
-    prevTick = CurrentTick();
-    WriteBuf[1] = step_P3; 
-    I2CBytes(t.I2Cport, WriteBuf, RdCnt, ReadBuf);
-    while(CurrentTick()-prevTick < t.delay_btw_steps);
-    
-    prevTick = CurrentTick();
-    WriteBuf[1] = step_P4; 
-    I2CBytes(t.I2Cport, WriteBuf, RdCnt, ReadBuf);
-    while(CurrentTick()-prevTick < t.delay_btw_steps);
-    
-    } //end for loop 
-  } //end if
-  
-  if (steps_to_move < 0) {  //CW
-    for (int i=0; i < steps_left; i++) {  
-    
-    prevTick = CurrentTick();
-    WriteBuf[1] = step_P4; 
-    I2CBytes(t.I2Cport, WriteBuf, RdCnt, ReadBuf);
-    while(CurrentTick()-prevTick < t.delay_btw_steps);
-  
-    prevTick = CurrentTick();
-    WriteBuf[1] = step_P3;
-    I2CBytes(t.I2Cport, WriteBuf, RdCnt, ReadBuf);
-    while(CurrentTick()-prevTick < t.delay_btw_steps);
-    
-    prevTick = CurrentTick();
-    WriteBuf[1] = step_P2; 
-    I2CBytes(t.I2Cport, WriteBuf, RdCnt, ReadBuf);
-    while(CurrentTick()-prevTick < t.delay_btw_steps);
-    
-    prevTick = CurrentTick();
-    WriteBuf[1] = step_P1; 
-    I2CBytes(t.I2Cport, WriteBuf, RdCnt, ReadBuf);
-    while(CurrentTick()-prevTick < t.delay_btw_steps);
-    
-    } //end for loop 
-  } //end if
-}
-
-
-
-
-
-
-
-
-/***** 
-  void ChooseStep(Stepper &t, int stepNum)
-  {
-    switch(stepNum)
+    while (steps_left > 0)
     {
-    case 0:
-      t.WriteBuf1 = pow(2,t.orange_bit)+pow(2,t.yellow_bit);
-      t.WriteBuf[1] = t.WriteBuf1;
-      I2CBytes(t.I2Cport,t.WriteBuf,t.RdCnt,t.ReadBuf);
-      break;
-    case 1:
-      t.WriteBuf1 = pow(2,t.yellow_bit)+pow(2,t.pink_bit);
-      t.WriteBuf[1] = t.WriteBuf1;
-      I2CBytes(t.I2Cport,t.WriteBuf,t.RdCnt,t.ReadBuf);
-      break;
-    case 2:
-      t.WriteBuf1 = pow(2,t.pink_bit)+pow(2,t.blue_bit);
-      t.WriteBuf[1] = t.WriteBuf1;
-      I2CBytes(t.I2Cport,t.WriteBuf,t.RdCnt,t.ReadBuf);
-      break;
-    case 3:
-      t.WriteBuf1 = pow(2,t.blue_bit)+pow(2,t.orange_bit);
-      t.WriteBuf[1] = t.WriteBuf1;
-      I2CBytes(t.I2Cport,t.WriteBuf,t.RdCnt,t.ReadBuf);
-      break;
-    }
-  }
+      switch(abs(steps_left % 4 - 3))
+      {
+      case 0:
+        WriteBuf[1] = pow(2,t.orange_bit)+pow(2,t.yellow_bit);
+        break;
+      case 1:
+        WriteBuf[1] = pow(2,t.yellow_bit)+pow(2,t.pink_bit);
+        break;
+      case 2:
+        WriteBuf[1] = pow(2,t.pink_bit)+pow(2,t.blue_bit);
+        break;
+      case 3:
+        WriteBuf[1] = pow(2,t.blue_bit)+pow(2,t.orange_bit);
+        break;
+    } //end switch
+      I2CBytes(t.I2Cport, WriteBuf, RdCnt, ReadBuf);
+      steps_left--;
+      while(CurrentTick()-prevTick < t.delay_btw_steps);
+      prevTick = CurrentTick();
+    } //end while
+   } //end if  
+   
+   
+   if (stepsToMove < 0)    //CW
+   {  
+    prevTick = CurrentTick();
+    while (steps_left > 0)
+    {
+      switch(steps_left % 4)
+      {
+      case 0:
+        WriteBuf[1] = pow(2,t.orange_bit)+pow(2,t.yellow_bit);
+        break;
+      case 1:
+        WriteBuf[1] = pow(2,t.yellow_bit)+pow(2,t.pink_bit);
+        break;
+      case 2:
+        WriteBuf[1] = pow(2,t.pink_bit)+pow(2,t.blue_bit);
+        break;
+      case 3:
+        WriteBuf[1] = pow(2,t.blue_bit)+pow(2,t.orange_bit);
+        break;
+    } //end switch
+      I2CBytes(t.I2Cport, WriteBuf, RdCnt, ReadBuf);
+      steps_left--;
+      while(CurrentTick()-prevTick < t.delay_btw_steps);
+      prevTick = CurrentTick();
+    } //end while
+   } //end if     
+} //end void
+
+
+
+
+
+
+
+
+
   
-  
+/*****   
   void MoveSteps(Stepper &t, int stepsToMove)
   {
    int steps_left = abs(stepsToMove);
